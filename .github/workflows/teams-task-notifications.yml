@@ -1,0 +1,30 @@
+name: Teams タスク期限通知
+
+on:
+  schedule:
+    # 毎朝9:30（JST）= UTC 00:30
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  notify-tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 今週期限タスクを Teams に通知
+        env:
+          MS_TENANT_ID: ${{ secrets.MS_TENANT_ID }}
+          MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
+          MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
+          MS_PLANNER_PLAN_ID: ${{ secrets.MS_PLANNER_PLAN_ID }}
+          MS_TEAMS_TEAM_ID: ${{ secrets.MS_TEAMS_TEAM_ID }}
+          MS_TEAMS_CHANNEL_ID: ${{ secrets.MS_TEAMS_CHANNEL_ID }}
+        run: python notify_teams_tasks.py
