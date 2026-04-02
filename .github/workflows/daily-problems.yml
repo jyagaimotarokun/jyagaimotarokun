@@ -1,0 +1,45 @@
+name: 毎日の算数問題を生成
+
+on:
+  schedule:
+    # 毎朝6時（JST）= UTC 21時（前日）
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "生成する日付 (YYYY-MM-DD、空白で今日)"
+        required: false
+        default: ""
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 問題を生成
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            python generate_problems.py "${{ github.event.inputs.date }}"
+          else
+            # JST の今日の日付を使う
+            python generate_problems.py "$(TZ=Asia/Tokyo date +%Y-%m-%d)"
+          fi
+
+      - name: 変更をコミット・プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add problems/
+          git diff --cached --quiet && echo "変更なし" && exit 0
+          git commit -m "📚 $(TZ=Asia/Tokyo date +%Y-%m-%d) の算数問題を追加"
+          git push
