@@ -1,9 +1,9 @@
-name: 毎日の算数問題を生成
+name: 毎日の算数問題を生成・LINE送信
 
 on:
   schedule:
-    # 毎朝6時（JST）= UTC 21時（前日）
-    - cron: "0 21 * * *"
+    # 毎朝7時（JST）= UTC 22時（前日）
+    - cron: "0 22 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -12,7 +12,7 @@ on:
         default: ""
 
 jobs:
-  generate:
+  generate-and-notify:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -26,14 +26,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: 問題を生成
+      - name: 日付を設定
+        id: date
         run: |
           if [ -n "${{ github.event.inputs.date }}" ]; then
-            python generate_problems.py "${{ github.event.inputs.date }}"
+            echo "value=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
           else
-            # JST の今日の日付を使う
-            python generate_problems.py "$(TZ=Asia/Tokyo date +%Y-%m-%d)"
+            echo "value=$(TZ=Asia/Tokyo date +%Y-%m-%d)" >> $GITHUB_OUTPUT
           fi
+
+      - name: 問題を生成
+        run: python generate_problems.py "${{ steps.date.outputs.value }}"
 
       - name: 変更をコミット・プッシュ
         run: |
@@ -41,5 +44,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add problems/
           git diff --cached --quiet && echo "変更なし" && exit 0
-          git commit -m "📚 $(TZ=Asia/Tokyo date +%Y-%m-%d) の算数問題を追加"
+          git commit -m "📚 ${{ steps.date.outputs.value }} の算数問題を追加"
           git push
+
+      - name: LINE に問題を送信
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: python send_line.py "${{ steps.date.outputs.value }}"
