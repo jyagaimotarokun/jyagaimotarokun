@@ -88,7 +88,7 @@ def build_line_text(date: datetime.date) -> str:
     lines.append(f"[ながさ] (1) {len_a}")
 
     return '\n'
-.join(lines)
+    .join(lines)
 
 
 def send_line_message(text: str, token: str) -> None:
