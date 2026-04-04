@@ -3,8 +3,8 @@
 LINE Messaging API で算数問題を送信するスクリプト
 環境変数:
   LINE_CHANNEL_ACCESS_TOKEN: チャネルアクセストークン
-  LINE_USER_ID:              送信先ユーザーID（"U" で始まる文字列）
 """
+
 import datetime
 import os
 import sys
@@ -24,7 +24,6 @@ def build_line_text(date: datetime.date) -> str:
     lines.append("今日も がんばろう！")
     lines.append("")
 
-    # 1. けいさん
     lines.append("【1】けいさん (8もん)")
     calc_problems: list[tuple[str, str]] = []
     for _ in range(2):
@@ -41,7 +40,6 @@ def build_line_text(date: datetime.date) -> str:
 
     lines.append("")
 
-    # 2. かけざん
     lines.append("【2】かけざん (5もん)")
     mult_problems: list[tuple[str, str]] = []
     for _ in range(5):
@@ -51,7 +49,6 @@ def build_line_text(date: datetime.date) -> str:
 
     lines.append("")
 
-    # 3. ぶんしょうだい
     lines.append("【3】ぶんしょうだい (4もん)")
     word_problems: list[tuple[str, str]] = []
     word_problems.append(gp.word_problem_addition(rng))
@@ -63,14 +60,12 @@ def build_line_text(date: datetime.date) -> str:
 
     lines.append("")
 
-    # 4. とけい
     lines.append("【4】とけい (1もん)")
     clock_q, clock_a = gp.clock_problem(rng)
     lines.append(f"(1) {clock_q}")
 
     lines.append("")
 
-    # 5. ながさ
     lines.append("【5】ながさ (1もん)")
     len_q, len_a = gp.length_problem(rng)
     lines.append(f"(1) {len_q}")
@@ -78,7 +73,6 @@ def build_line_text(date: datetime.date) -> str:
     lines.append("")
     lines.append("▼ こたえ")
 
-    # こたえ
     lines.append("[けいさん]")
     for i, (q, a) in enumerate(calc_problems, 1):
         lines.append(f"({i}) {q} = {a}")
@@ -94,15 +88,16 @@ def build_line_text(date: datetime.date) -> str:
     lines.append(f"[とけい] (1) {clock_a}")
     lines.append(f"[ながさ] (1) {len_a}")
 
-    return "\n".join(lines)
+    return "
+".join(lines)
 
 
-def send_line_message(text: str, token: str, user_id: str) -> None:
-    url = "https://api.line.me/v2/bot/message/push"
+def send_line_message(text: str, token: str) -> None:
+    url = "https://api.line.me/v2/bot/message/broadcast"
     payload = json.dumps({
-        "to": user_id,
         "messages": [{"type": "text", "text": text}]
     }).encode("utf-8")
+
     req = urllib.request.Request(
         url,
         data=payload,
@@ -112,6 +107,7 @@ def send_line_message(text: str, token: str, user_id: str) -> None:
         },
         method="POST",
     )
+
     try:
         with urllib.request.urlopen(req) as resp:
             print(f"LINE 送信成功: HTTP {resp.status}")
@@ -123,11 +119,10 @@ def send_line_message(text: str, token: str, user_id: str) -> None:
 
 def main() -> None:
     token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
-    user_id = os.environ.get("LINE_USER_ID")
 
-    if not token or not user_id:
+    if not token:
         print(
-            "エラー: 環境変数 LINE_CHANNEL_ACCESS_TOKEN と LINE_USER_ID を設定してください",
+            "エラー: 環境変数 LINE_CHANNEL_ACCESS_TOKEN を設定してください",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -138,7 +133,7 @@ def main() -> None:
         date = datetime.date.today()
 
     text = build_line_text(date)
-    send_line_message(text, token, user_id)
+    send_line_message(text, token)
 
 
 if __name__ == "__main__":
