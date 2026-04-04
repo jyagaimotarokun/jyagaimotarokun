@@ -88,8 +88,7 @@ def build_line_text(date: datetime.date) -> str:
     lines.append(f"[とけい] (1) {clock_a}")
     lines.append(f"[ながさ] (1) {len_a}")
 
-    return "
-".join(lines)
+    return "/n".join(lines)
 
 
 def send_line_message(text: str, token: str) -> None:
