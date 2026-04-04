@@ -4,7 +4,6 @@ LINE Messaging API で算数問題を送信するスクリプト
 環境変数:
   LINE_CHANNEL_ACCESS_TOKEN: チャネルアクセストークン
 """
-
 import datetime
 import os
 import sys
@@ -94,9 +93,9 @@ def build_line_text(date: datetime.date) -> str:
 
 def send_line_message(text: str, token: str) -> None:
     url = "https://api.line.me/v2/bot/message/broadcast"
-    payload = json.dumps({
-        "messages": [{"type": "text", "text": text}]
-    }).encode("utf-8")
+    payload = json.dumps(
+        {"messages": [{"type": "text", "text": text}]}
+    ).encode("utf-8")
 
     req = urllib.request.Request(
         url,
@@ -119,7 +118,6 @@ def send_line_message(text: str, token: str) -> None:
 
 def main() -> None:
     token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
-
     if not token:
         print(
             "エラー: 環境変数 LINE_CHANNEL_ACCESS_TOKEN を設定してください",
