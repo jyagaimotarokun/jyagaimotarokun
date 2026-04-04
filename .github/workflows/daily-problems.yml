@@ -50,5 +50,4 @@ jobs:
       - name: LINE に問題を送信
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: python send_line.py "${{ steps.date.outputs.value }}"
