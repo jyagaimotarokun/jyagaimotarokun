@@ -87,8 +87,8 @@ def build_line_text(date: datetime.date) -> str:
     lines.append(f"[とけい] (1) {clock_a}")
     lines.append(f"[ながさ] (1) {len_a}")
 
-    return '\n
-    '
+    return "\n
+    "
     .join(lines)
 
 
