@@ -244,6 +244,101 @@ def generate_problems(date: datetime.date) -> str:
     return "\n".join(lines)
 
 
+def _generate_all_sections(date: datetime.date):
+    """全セクションの問題と答えを同じ順序で生成して返す（内部用）"""
+    rng = seeded_random(get_seed(date))
+
+    calc_problems: list[tuple[str, str]] = []
+    for _ in range(2):
+        calc_problems.append(addition_carry(rng))
+    for _ in range(2):
+        calc_problems.append(subtraction_borrow(rng))
+    for _ in range(2):
+        calc_problems.append(addition_within_100(rng))
+    for _ in range(2):
+        calc_problems.append(subtraction_within_100(rng))
+    rng.shuffle(calc_problems)
+
+    mult_problems: list[tuple[str, str]] = []
+    for _ in range(5):
+        mult_problems.append(multiplication_table(rng))
+
+    word_problems: list[tuple[str, str]] = []
+    word_problems.append(word_problem_addition(rng))
+    word_problems.append(word_problem_subtraction(rng))
+    word_problems.append(word_problem_multiplication(rng))
+    word_problems.append(word_problem_addition(rng))
+
+    clock = clock_problem(rng)
+    length = length_problem(rng)
+
+    return calc_problems, mult_problems, word_problems, clock, length
+
+
+def build_line_problem_text(date: datetime.date) -> str:
+    """LINE送信用：問題のみ（答えなし）"""
+    date_str = date.strftime("%-m月%-d日")
+    calc, mult, word, (clock_q, _), (len_q, _) = _generate_all_sections(date)
+
+    lines = [f"📚 {date_str}の さんすう もんだい", "今日も がんばろう！", ""]
+
+    lines.append("【1】けいさん (8もん)")
+    for i, (q, _) in enumerate(calc, 1):
+        lines.append(f"({i}) {q} =")
+    lines.append("")
+
+    lines.append("【2】かけざん (5もん)")
+    for i, (q, _) in enumerate(mult, 1):
+        lines.append(f"({i}) {q} =")
+    lines.append("")
+
+    lines.append("【3】ぶんしょうだい (4もん)")
+    for i, (q, _) in enumerate(word, 1):
+        lines.append(f"({i}) {q}")
+    lines.append("")
+
+    lines.append("【4】とけい (1もん)")
+    lines.append(f"(1) {clock_q}")
+    lines.append("")
+
+    lines.append("【5】ながさ (1もん)")
+    lines.append(f"(1) {len_q}")
+    lines.append("")
+    lines.append("「できた」と送ると こたえが みられるよ！")
+
+    return "\n".join(lines)
+
+
+def build_line_answer_text(date: datetime.date) -> str:
+    """LINE送信用：答えのみ"""
+    date_str = date.strftime("%-m月%-d日")
+    calc, mult, word, (_, clock_a), (_, len_a) = _generate_all_sections(date)
+
+    lines = [f"✅ {date_str}の こたえ", ""]
+
+    lines.append("[けいさん]")
+    for i, (q, a) in enumerate(calc, 1):
+        lines.append(f"({i}) {q} = {a}")
+    lines.append("")
+
+    lines.append("[かけざん]")
+    for i, (q, a) in enumerate(mult, 1):
+        lines.append(f"({i}) {q} = {a}")
+    lines.append("")
+
+    lines.append("[ぶんしょうだい]")
+    for i, (_, a) in enumerate(word, 1):
+        lines.append(f"({i}) {a}")
+    lines.append("")
+
+    lines.append(f"[とけい] (1) {clock_a}")
+    lines.append(f"[ながさ] (1) {len_a}")
+    lines.append("")
+    lines.append("よくできました！🌟")
+
+    return "\n".join(lines)
+
+
 def main():
     if len(sys.argv) > 1:
         date = datetime.date.fromisoformat(sys.argv[1])
