@@ -46,7 +46,7 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length))
-        token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+        token = os.environ.get("line_channel_access_token", "")
 
         for event in body.get("events", []):
             if event.get("type") != "message":
