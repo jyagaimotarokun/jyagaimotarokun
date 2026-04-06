@@ -280,7 +280,7 @@ def build_line_problem_text(date: datetime.date) -> str:
     date_str = date.strftime("%-m月%-d日")
     calc, mult, word, (clock_q, _), (len_q, _) = _generate_all_sections(date)
 
-    lines = [f"📚 {date_str}の さんすう もんだい", "今日も がんばろう！", ""]
+    lines = [f"📚 {date_str}の さんすう もんだい", "蒼人、今日も がんばろう！父さんより", ""]
 
     lines.append("【1】けいさん (8もん)")
     for i, (q, _) in enumerate(calc, 1):
@@ -304,7 +304,7 @@ def build_line_problem_text(date: datetime.date) -> str:
     lines.append("【5】ながさ (1もん)")
     lines.append(f"(1) {len_q}")
     lines.append("")
-    lines.append("「できた」と送ると こたえが みられるよ！")
+    lines.append("今日の20時くらいに答えを送るよ！父さんより")
 
     return "\n".join(lines)
 
@@ -334,7 +334,7 @@ def build_line_answer_text(date: datetime.date) -> str:
     lines.append(f"[とけい] (1) {clock_a}")
     lines.append(f"[ながさ] (1) {len_a}")
     lines.append("")
-    lines.append("よくできました！🌟")
+    lines.append("蒼人、どうだったかな？できなかった問題はいっしょに考えよう。父さんより🌟")
 
     return "\n".join(lines)
 
