@@ -1,0 +1,39 @@
+name: 19時：答えを送信
+
+on:
+  schedule:
+    # 毎日19時（JST）= UTC 10時
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "答えを送る日付 (YYYY-MM-DD、空白で今日)"
+        required: false
+        default: ""
+
+jobs:
+  send-answer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 日付を設定
+        id: date
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            echo "value=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=$(TZ=Asia/Tokyo date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: LINE に答えを送信
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: python send_line.py "${{ steps.date.outputs.value }}" --answers

@@ -1,9 +1,9 @@
-name: 毎日の算数問題を生成・LINE送信
+name: 16時：算数問題を生成・送信
 
 on:
   schedule:
-    # 毎朝7時（JST）= UTC 22時（前日）
-    - cron: "0 22 * * *"
+    # 毎日16時（JST）= UTC 7時
+    - cron: "0 7 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: リポジトリをチェックアウト
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Python をセットアップ
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 

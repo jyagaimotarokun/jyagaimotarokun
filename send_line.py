@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-LINE Messaging API で算数問題（問題のみ）を broadcast 送信するスクリプト
+LINE Messaging API で broadcast 送信するスクリプト
+使い方:
+  python send_line.py [日付]           # 問題を送信
+  python send_line.py [日付] --answers # 答えを送信
 環境変数:
   LINE_CHANNEL_ACCESS_TOKEN: チャネルアクセストークン
 """
@@ -46,12 +49,16 @@ def main() -> None:
         )
         sys.exit(1)
 
-    if len(sys.argv) > 1:
-        date = datetime.date.fromisoformat(sys.argv[1])
-    else:
-        date = datetime.date.today()
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    answers_mode = "--answers" in sys.argv
 
-    text = gp.build_line_problem_text(date)
+    date = datetime.date.fromisoformat(args[0]) if args else datetime.date.today()
+
+    if answers_mode:
+        text = gp.build_line_answer_text(date)
+    else:
+        text = gp.build_line_problem_text(date)
+
     send_broadcast(text, token)
 
 
